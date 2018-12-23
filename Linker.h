@@ -79,32 +79,6 @@ int readFile(vector<vector<string>> &code){
         return i;
     }
 
-void readESTAB(vector<vector<string>> &estab){
-        std::ifstream inFile("ESTAB.txt");
-        std::string temp;
-        std::string tempNoSpace="";
-        int i=0;
-
-        while (std::getline(inFile, temp)){
-
-            for(int j=0;j<temp.size();j++){
-
-                if(temp[j] != ' ' && temp[j] != '\t' && temp[j] != '\n' && temp[j] != '\0'){
-
-                    tempNoSpace+=temp[j];
-
-                }else{
-                    estab[i].push_back(tempNoSpace);
-                    tempNoSpace.clear();
-                }
-
-            }
-
-            estab[i++].push_back(tempNoSpace);
-            tempNoSpace.clear();
-        }
-}
-
 void extractObjectCode(vector<int>&objectCode, vector<vector<string>> code,int lines,vector<int>&address,vector<int>startAddresses){
     int progAddr=0;
     int temp=0;
@@ -114,7 +88,7 @@ void extractObjectCode(vector<int>&objectCode, vector<vector<string>> code,int l
                 progAddr=hexStringToDec(code[i][2]);
                 progAddr=startAddresses[0+k];
                 k++;
-                cout<<progAddr<<endl;
+                cout<<intToHexString(progAddr)<<endl;
             }else if (code[i][0]=="T"){
                     cout<<"found"<<endl;
                     temp=hexStringToDec(code[i][1]) + progAddr; //get starting address of text record
@@ -137,26 +111,37 @@ void extractObjectCode(vector<int>&objectCode, vector<vector<string>> code,int l
         }
 }
 
-void getStartAddresses(vector<vector<string>> estab,vector<int>&startAddresses){
-
-    for(int i=0 ; i<estab.size() ; i++){
-        if(estab[i].size() == 3){
-            startAddresses.push_back(hexStringToDec(estab[i][1]));
-        }
-    }
-
-}
-
-void getESTABvalues(vector<vector<string>> estab,map<string,string>&estabValues){
-
-    for(int i=0 ; i<estab.size() ; i++){
-        if(estab[i].size() == 2){
-            estabValues.insert(pair<string,string>(estab[i][0],estab[i][1]));
+void getStartAddresses(vector<vector<string>> code,vector<int>&startAddresses,int lines){//start addresses of programs
+    int loadAddress= 16384; //LOAD ADDRESS AS IF PROVIDED FROM THE OS 4000
+    int temp=loadAddress;
+    int temp2=0;
+    for(int i=0 ; i<lines ; i++){
+        if(code[i][0] == "H"){
+           startAddresses.push_back( loadAddress+ temp2 );
+           temp2+=hexStringToDec(code[i][3]);
         }
     }
 }
 
-void extractModification(vector<vector<string>> code,int lines,vector<int>&modifyAddress,vector<int>&modifyObjectCode,vector<int>startAddresses,map<string,string>estabValues){
+void getESTABvalues(vector<vector<string>> code,map<string,int>&estabValues,vector<int>startAddresses, int lines){
+    int progLength =0;
+    int k=0;
+    for(int i=0 ; i<lines ; i++){
+           if(code[i][0] == "H"){
+                progLength=startAddresses[0+k];
+                estabValues.insert(pair<string,int>(code[i][1],progLength));
+                k++;
+            }else if(code[i][0] == "D"){
+                for(int j=1 ; j<(code[i].size() -1) ; j+=2){
+                    //int temp = code[i].size()-1;
+                    estabValues.insert(pair<string,int>(code[i][j],hexStringToDec(code[i][j+1]) + progLength));
+                }
+            }
+
+    }
+}
+
+void extractModification(vector<vector<string>> code,int lines,vector<int>&modifyAddress,vector<int>&modifyObjectCode,vector<int>startAddresses,map<string,int>estabValues){
     int progAddr=0;
     int temp=0;
     int k = 0;
@@ -167,13 +152,22 @@ void extractModification(vector<vector<string>> code,int lines,vector<int>&modif
                 k++;
             }else if (code[i][0]=="M"){
                 if(code[i][2] == "05"){
-                    modifyAddress.push_back(hexStringToDec(code[i][1]) - 1);
-                    modifyObjectCode.push_back(hexStringToDec(estabValues.find()->second));
+                    modifyAddress.push_back(hexStringToDec(code[i][1])+progAddr - 1);
+                    //cout<<estabValues.find(code[i][3].substr(1,code[i][3].size()-1))->second<<endl;
+                    modifyObjectCode.push_back((estabValues.find(code[i][3].substr(1,code[i][3].size()-1))->second));
+                }else if(code[i][2] == "06"){
+                    modifyAddress.push_back(hexStringToDec(code[i][1])+progAddr);
+                    //cout<<estabValues.find(code[i][3].substr(1,code[i][3].size()-1))->second<<endl;
+                    modifyObjectCode.push_back((estabValues.find(code[i][3].substr(1,code[i][3].size()-1))->second));
                 }
-
             }
 
         }
+}
+void linkingAddresses(vector<vector<string>> code,int lines,vector<int>modifyAddress,vector<int>modifyObjectCode,vector<int>address,vector<int>objectCode,vector<string>&linkedAddresses){
+    for(int i=0 ; i < address.size() ; i++){
+
+    }
 }
 
 #endif //

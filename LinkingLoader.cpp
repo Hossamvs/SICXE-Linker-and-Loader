@@ -9,19 +9,18 @@ using namespace std;
 int main(){
     vector<vector<string>> code(1000);
     vector<vector<string>> estab(500);
-    map<string,string>estabValues;
+    map<string,int>estabValues;
     vector<int>objectCode;
     vector<int>address;
     vector<int>modifyAddress;
     vector<int>modifyObjectCode;
     vector<int>startAddresses;
-
+    vector<string>linkedAddresses;
     int lines = readFile(code);
-    readESTAB(estab);
-    getStartAddresses(estab,startAddresses);
-    getESTABvalues(estab,estabValues);
+    getStartAddresses(code,startAddresses, lines);
+    getESTABvalues(code,estabValues,startAddresses,lines);
     extractObjectCode(objectCode,code,lines,address,startAddresses);
-    //extractModification(code,lines,modifyAddress,modifyObjectCode)
+    extractModification(code,lines,modifyAddress,modifyObjectCode,startAddresses,estabValues);
     //cout<<code[0][1][0]<<endl;
 
 /*Debugging */
@@ -41,16 +40,20 @@ int main(){
 //
 //    }
 
-//    for( std::map<string,string>::const_iterator it = estabValues.begin(); it != estabValues.end(); ++it )
+//    for( std::map<string,int>::const_iterator it = estabValues.begin(); it != estabValues.end(); ++it )
 //    {
 //      string value = it->first;
-//      string key = it->second;
+//      int key = it->second;
 //      cout<<value<<"\t"<<key<<endl;
 //
 //    }
 
-//    for(int i=0; i<address.size(); i++){
-//        cout<<address[i]<<" |  "<<objectCode[i]<<endl;
-//    }
+    for(int i=0; i<address.size(); i++){
+        cout<<intToHexString(address[i])<<" |  "<<intToHexString(objectCode[i])<<endl;
+    }
+
+    for(int i=0; i<modifyAddress.size(); i++){
+        cout<<intToHexString(modifyAddress[i])<<" |  "<<intToHexString(modifyObjectCode[i])<<endl;
+    }
     return 0;
 }
