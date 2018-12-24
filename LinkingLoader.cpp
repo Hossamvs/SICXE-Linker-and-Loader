@@ -15,12 +15,14 @@ int main(){
     vector<int>modifyAddress;
     vector<int>modifyObjectCode;
     vector<int>startAddresses;
+    vector<string>operation;
     vector<string>linkedAddresses;
     int lines = readFile(code);
     getStartAddresses(code,startAddresses, lines);
     getESTABvalues(code,estabValues,startAddresses,lines);
     extractObjectCode(objectCode,code,lines,address,startAddresses);
-    extractModification(code,lines,modifyAddress,modifyObjectCode,startAddresses,estabValues);
+    extractModification(code,lines,modifyAddress,modifyObjectCode,startAddresses,estabValues,operation);
+    linkingAddresses(code,lines,modifyAddress,modifyObjectCode,address,objectCode,linkedAddresses,operation);
     //cout<<code[0][1][0]<<endl;
 
 /*Debugging */
@@ -53,7 +55,12 @@ int main(){
     }
 
     for(int i=0; i<modifyAddress.size(); i++){
-        cout<<intToHexString(modifyAddress[i])<<" |  "<<intToHexString(modifyObjectCode[i])<<endl;
+        cout<<intToHexString(modifyAddress[i])<<" |  "<<intToHexString(modifyObjectCode[i])<<" | " <<operation[i]<<endl;
     }
+
+    for(int i=0 ; i<linkedAddresses.size(); i++){
+        cout<<linkedAddresses[i]<<endl;
+    }
+
     return 0;
 }

@@ -141,7 +141,7 @@ void getESTABvalues(vector<vector<string>> code,map<string,int>&estabValues,vect
     }
 }
 
-void extractModification(vector<vector<string>> code,int lines,vector<int>&modifyAddress,vector<int>&modifyObjectCode,vector<int>startAddresses,map<string,int>estabValues){
+void extractModification(vector<vector<string>> code,int lines,vector<int>&modifyAddress,vector<int>&modifyObjectCode,vector<int>startAddresses,map<string,int>estabValues,vector<string>&operation){
     int progAddr=0;
     int temp=0;
     int k = 0;
@@ -154,19 +154,46 @@ void extractModification(vector<vector<string>> code,int lines,vector<int>&modif
                 if(code[i][2] == "05"){
                     modifyAddress.push_back(hexStringToDec(code[i][1])+progAddr - 1);
                     //cout<<estabValues.find(code[i][3].substr(1,code[i][3].size()-1))->second<<endl;
+                    //cout<<"aaaaaaa "<<code[i][3].substr(0,1)<<endl;
+                    operation.push_back(code[i][3].substr(0,1));
                     modifyObjectCode.push_back((estabValues.find(code[i][3].substr(1,code[i][3].size()-1))->second));
                 }else if(code[i][2] == "06"){
                     modifyAddress.push_back(hexStringToDec(code[i][1])+progAddr);
                     //cout<<estabValues.find(code[i][3].substr(1,code[i][3].size()-1))->second<<endl;
+                    operation.push_back(code[i][3].substr(0,1));
                     modifyObjectCode.push_back((estabValues.find(code[i][3].substr(1,code[i][3].size()-1))->second));
                 }
             }
 
         }
 }
-void linkingAddresses(vector<vector<string>> code,int lines,vector<int>modifyAddress,vector<int>modifyObjectCode,vector<int>address,vector<int>objectCode,vector<string>&linkedAddresses){
-    for(int i=0 ; i < address.size() ; i++){
-
+void linkingAddresses(vector<vector<string>> code,int lines,vector<int>modifyAddress,vector<int>modifyObjectCode,vector<int>address,vector<int>objectCode,vector<string>&linkedAddresses,vector<string>operation){
+    int k=0;
+    int temp=0;
+    int sum=0;
+    for(int i=0 ; i < address.size() ; ++i){
+        if(address[i]==modifyAddress[k]){
+            if(operation[k] == "+"){
+                if(objectCode[i]<= 16777215 && objectCode[i]>1048575){//between ffffff and fffff to get negative numbers
+                    temp+= ~objectCode[i];
+                    temp++;
+                    temp+=modifyObjectCode[k];
+                    }else{
+                        temp+=o
+                    }
+                }else if(operation[k] == "-"){
+                    if(objectCode[i]<= 16777215 && objectCode[i]>1048575)//between ffffff and fffff to get negative numbers
+                    temp+= ~objectCode[i];
+                    temp++;
+                    temp+=modifyObjectCode[k];
+                }
+            k++;
+            i--;
+            cout<<"aaaaaaa "<<intToHexString(temp)<<endl;
+            temp=0;
+        }else{
+            //linkedAddresses.push_back(intToHexString(objectCode[i]));//bug
+        }
     }
 }
 
