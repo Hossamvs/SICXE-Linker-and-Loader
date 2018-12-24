@@ -123,6 +123,29 @@ void getStartAddresses(vector<vector<string>> code,vector<int>&startAddresses,in
     }
 }
 
+void printMap(map<string,int> linkedAddresses){
+
+        std::ofstream file;
+
+        file.open("linked.txt");
+
+        for( map<string,int>::const_iterator it = linkedAddresses.begin(); it != linkedAddresses.end(); ++it )
+        {
+          string key = it->first;
+          //int value = it->second;
+          int value = it->second;
+          if(intToHexString(value).size() == 7)
+            file<<key<<"\t"<<std::hex<< std::setfill('0') << std::setw(8) << intToHexString(value)<<std::endl;
+          else
+            file<<key<<"\t"<<std::hex<< std::setfill('0') << std::setw(6) << intToHexString(value)<<std::endl;
+
+        }
+
+        file.close();
+
+        return;
+    }
+
 void getESTABvalues(vector<vector<string>> code,map<string,int>&estabValues,vector<int>startAddresses, int lines){
     int progLength =0;
     int k=0;
@@ -172,6 +195,8 @@ void linkingAddresses(vector<int>modifyAddress,vector<int>modifyObjectCode,vecto
     int i=0;
     int temp=0;
     int sum=0;
+    bool comingFromOperation = false;
+    map<string,int>::iterator it;
     //handling non-modified addresses
     for(i=0 ; i<address.size() ; i++){
         if(find(modifyAddress.begin(),modifyAddress.end(),address[i]) != modifyAddress.end()){
@@ -185,40 +210,45 @@ void linkingAddresses(vector<int>modifyAddress,vector<int>modifyObjectCode,vecto
     try{
     for(i=0 ; i<address.size(); i++){
         if(address[i]== modifyAddress[k]){
-            if(objectCode[i]<= 16777215 && objectCode[i]>1048575){ //checking if value is negative
-                temp=(16777215-objectCode[i])+1; //get positive number
+            if(objectCode[i]<= 16777215 && objectCode[i]>1048575 && comingFromOperation == false){ //checking if value is negative
+                it = linkedAddresses.find(intToHexString(modifyAddress[k]));
+                if(it != linkedAddresses.end())goto label;
+                temp=((16777215-objectCode[i])+1) * -1; //get positive number
+                comingFromOperation==true;
+                cout<<intToHexString(modifyAddress[k])<<" AAAAA "<<temp<<endl;
                 if(operation[k]== "+"){
                     temp+=modifyObjectCode[k];
                     linkedAddresses.insert(pair<string,int>(intToHexString(address[i]),temp));
                     i--;
                     k++;
-                    cout<<i<<" || " <<k<<" | "<<intToHexString(linkedAddresses[intToHexString(address[k])])<<" ||| "<<intToHexString(temp)<<endl;
+                  //  cout<<i<<" || " <<k<<" | "<<intToHexString(linkedAddresses[intToHexString(address[k])])<<" ||| "<<intToHexString(temp)<<endl;
                     temp=0;
                 }else if(operation[k]=="-"){
                     temp-=modifyObjectCode[k];
                     linkedAddresses.insert(pair<string,int>(intToHexString(address[i]),temp));
                     i--;
                     k++;
-                    cout<<i<<" || " <<k<<" | "<<intToHexString(linkedAddresses[intToHexString(address[k])])<<" ||| "<<intToHexString(temp)<<endl;
+                  //  cout<<i<<" || " <<k<<" | "<<intToHexString(linkedAddresses[intToHexString(address[k])])<<" ||| "<<intToHexString(temp)<<endl;
                     temp=0;
 
                 }
-
             }else{  //end negative check
-
-                if(linkedAddresses.find(intToHexString(modifyAddress[k])) != linkedAddresses.end() ){ //check if value already exists in map
+label:          comingFromOperation=false;
+                it = linkedAddresses.find(intToHexString(modifyAddress[k]));
+                if(it!= linkedAddresses.end() ){ //check if value already exists in map
                     if(operation[k]== "+"){
-                        //(linkedAddresses.find(intToHexString(modifyAddress[k]))->second) += modifyObjectCode[k];
-                        linkedAddresses[intToHexString(modifyAddress[k])] += modifyObjectCode[k];
+                        if(it != linkedAddresses.end())
+                            it->second += modifyObjectCode[k];
                         i--;
                         k++;
-                        cout<<i<<" || " <<k<<" | "<<intToHexString(linkedAddresses[intToHexString(modifyAddress[k])])<<" ||| "<<intToHexString(temp)<<endl;
+                       // cout<<i<<" || " <<k<<" | "<<intToHexString(linkedAddresses[intToHexString(modifyAddress[k])])<<" ||| "<<intToHexString(temp)<<endl;
                         temp=0;
                     }else if(operation[k]=="-"){
-                        linkedAddresses[intToHexString(modifyAddress[k])] += modifyObjectCode[k];
+                            if(it != linkedAddresses.end())
+                                it->second -= modifyObjectCode[k];
                         i--;
                         k++;
-                        cout<<i<<" || " <<k<<" | "<<intToHexString(linkedAddresses[intToHexString(modifyAddress[k])])<<" ||| "<<intToHexString(temp)<<endl;
+                        //cout<<i<<" || " <<k<<" | "<<intToHexString(linkedAddresses[intToHexString(modifyAddress[k])])<<" ||| "<<intToHexString(temp)<<endl;
                         temp=0;
                     }
                 }else{
@@ -228,7 +258,7 @@ void linkingAddresses(vector<int>modifyAddress,vector<int>modifyObjectCode,vecto
                         linkedAddresses.insert(pair<string,int>(intToHexString(address[i]),temp));
                         i--;
                         k++;
-                        cout<<i<<" || " <<k<<" | "<<intToHexString(linkedAddresses[intToHexString(modifyAddress[k])])<<" ||| "<<intToHexString(temp)<<endl;
+                       // cout<<i<<" || " <<k<<" | "<<intToHexString(linkedAddresses[intToHexString(modifyAddress[k])])<<" ||| "<<intToHexString(temp)<<endl;
                         temp=0;
                     }else if(operation[k]=="-"){
                         temp=objectCode[i];
@@ -236,13 +266,13 @@ void linkingAddresses(vector<int>modifyAddress,vector<int>modifyObjectCode,vecto
                         linkedAddresses.insert(pair<string,int>(intToHexString(address[i]),temp));
                         i--;
                         k++;
-                        cout<<i<<" || " <<k<<" | "<<intToHexString(linkedAddresses[intToHexString(modifyAddress[k])])<<" ||| "<<intToHexString(temp)<<endl;
+                       // cout<<i<<" || " <<k<<" | "<<intToHexString(linkedAddresses[intToHexString(modifyAddress[k])])<<" ||| "<<intToHexString(temp)<<endl;
                         temp=0;
                     }
                 }
 
             }
-        }//end addr = modaddr
+        }//else{comingFromOperation=false;}//end addr = modaddr
     }//end for loop
     }
     catch(const std::exception &exc){

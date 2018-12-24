@@ -29,6 +29,7 @@ int main(){
     catch(const std::exception &exc){
         std::cerr << exc.what();
     }
+    printMap(linkedAddresses);
     //cout<<code[0][1][0]<<endl;
 
 /*Debugging */

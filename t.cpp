@@ -2,18 +2,24 @@
 #include<algorithm>
 #include<string>
 #include<map>
+#include<sstream>
 using namespace std;
-int main(){
-    map<char,int>mymap;
-    char x = 'f';
-    mymap['a']=150;
-    mymap['b']=100;
-    mymap['c']=200;
-    mymap['b']+=250;
-    mymap[x] = 500;
-    if(mymap.find('?')!=mymap.end()){
-        cout<<"aaaaaaa"<<endl;
+
+    int hexStringToDec(string str){
+        int output;
+        stringstream stream;
+        stream <<hex<<str;
+        stream >> output;
+
+        return output;
     }
-    cout<<mymap['f']<<endl;
+
+int main(){
+    string x = "ffffff";
+    string y = "ffffff";
+    int temp = hexStringToDec(x);
+    int temp2 = hexStringToDec(y);
+    int z = temp - temp2 +1;
+    cout <<z<<endl;
     return 0;
 }
