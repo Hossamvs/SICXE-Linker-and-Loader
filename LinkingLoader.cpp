@@ -22,8 +22,13 @@ int main(){
     getESTABvalues(code,estabValues,startAddresses,lines);
     extractObjectCode(objectCode,code,lines,address,startAddresses);
     extractModification(code,lines,modifyAddress,modifyObjectCode,startAddresses,estabValues,operation);
-    cout<<address.size()<<" sizes " <<modifyAddress.size()<<endl;
-    linkingAddresses(code,lines,modifyAddress,modifyObjectCode,address,objectCode,linkedAddresses,operation);
+    cout<<address.size()<<" sizes " <<modifyAddress.size()<< " Operations "<<objectCode.size()<<endl;
+    try{
+        linkingAddresses(modifyAddress,modifyObjectCode,address,objectCode,linkedAddresses,operation);
+    }
+    catch(const std::exception &exc){
+        std::cerr << exc.what();
+    }
     //cout<<code[0][1][0]<<endl;
 
 /*Debugging */
@@ -51,9 +56,9 @@ int main(){
 //
 //    }
 
-//    for(int i=0; i<address.size(); i++){
-//        cout<<intToHexString(address[i])<<" |  "<<intToHexString(objectCode[i])<<endl;
-//    }
+    for(int i=0; i<address.size(); i++){
+        cout<<intToHexString(address[i])<<" |  "<<intToHexString(objectCode[i])<<endl;
+    }
 
     for(int i=0; i<modifyAddress.size(); i++){
         cout<<intToHexString(modifyAddress[i])<<" |  "<<intToHexString(modifyObjectCode[i])<<" | " <<operation[i]<<endl;
@@ -62,6 +67,14 @@ int main(){
 //    for(int i=0 ; i<linkedAddresses.size(); i++){
 //        cout<<linkedAddresses[i]<<endl;
 //    }
+
+    for( std::map<string,int>::const_iterator it = linkedAddresses.begin(); it != linkedAddresses.end(); ++it )
+    {
+      string value = it->first;
+      int key = it->second;
+      cout<<value<<"\t"<<intToHexString(key)<<endl;
+    }
+
 
     return 0;
 }
