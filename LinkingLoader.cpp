@@ -16,12 +16,13 @@ int main(){
     vector<int>modifyObjectCode;
     vector<int>startAddresses;
     vector<string>operation;
-    vector<string>linkedAddresses;
+    map<string,int>linkedAddresses;
     int lines = readFile(code);
     getStartAddresses(code,startAddresses, lines);
     getESTABvalues(code,estabValues,startAddresses,lines);
     extractObjectCode(objectCode,code,lines,address,startAddresses);
     extractModification(code,lines,modifyAddress,modifyObjectCode,startAddresses,estabValues,operation);
+    cout<<address.size()<<" sizes " <<modifyAddress.size()<<endl;
     linkingAddresses(code,lines,modifyAddress,modifyObjectCode,address,objectCode,linkedAddresses,operation);
     //cout<<code[0][1][0]<<endl;
 
@@ -50,17 +51,17 @@ int main(){
 //
 //    }
 
-    for(int i=0; i<address.size(); i++){
-        cout<<intToHexString(address[i])<<" |  "<<intToHexString(objectCode[i])<<endl;
-    }
+//    for(int i=0; i<address.size(); i++){
+//        cout<<intToHexString(address[i])<<" |  "<<intToHexString(objectCode[i])<<endl;
+//    }
 
     for(int i=0; i<modifyAddress.size(); i++){
         cout<<intToHexString(modifyAddress[i])<<" |  "<<intToHexString(modifyObjectCode[i])<<" | " <<operation[i]<<endl;
     }
 
-    for(int i=0 ; i<linkedAddresses.size(); i++){
-        cout<<linkedAddresses[i]<<endl;
-    }
+//    for(int i=0 ; i<linkedAddresses.size(); i++){
+//        cout<<linkedAddresses[i]<<endl;
+//    }
 
     return 0;
 }
